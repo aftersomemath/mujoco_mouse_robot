@@ -1,0 +1,56 @@
+<mujoco model="Hoopflyt">
+  <option timestep="0.001" gravity="0 0 -9.81"/>
+
+  <size njmax="50" nconmax="10" nstack="2000"/>
+
+  <visual>
+    <global offwidth="1280" offheight="720"/>
+    <rgba haze=".3 .3 .3 1"/>
+  </visual>
+
+  <default>
+
+  </default>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.6 0.6 0.6" rgb2="0 0 0" width="512" height="512"/>
+
+    <texture name="texplane" type="2d" builtin="checker" rgb1=".25 .25 .25" rgb2=".3 .3 .3" width="512" height="512" mark="cross" markrgb=".8 .8 .8"/>
+
+    <material name="matplane" reflectance="0.3" texture="texplane" texrepeat="1 1" texuniform="true"/>
+
+    <mesh name="mouse" file="mouse.stl" scale="0.01 0.01 0.01"/>
+  </asset>
+
+  <worldbody>
+    <geom name="floor" pos="0 0 0" size="0 0 0.25" type="plane" material="matplane"/>
+
+    <light directional="true" diffuse=".8 .8 .8" specular=".2 .2 .2" pos="0 0 5" dir="0 0 -1"/>
+
+    <body name="mouse" pos="0 0 0.2">
+      <freejoint/>
+      <geom name="mouse" type="mesh" mesh="mouse" mass="0.2"/>
+
+      <body pos="-0.45 0 0.1" axisangle="0 1 0 90">
+          <camera name="mouse" mode="fixed" fovy="100" axisangle="0 0 1 90"/>
+      </body>
+
+      <body pos="0.320 -0.4 0.035">
+        <joint name="lwheel" axis="0 1 0" damping="0.1"/>
+        <geom name="lwheel" type="ellipsoid" size="0.17 0.01 0.17" rgba="1 0 0 0.25" mass="0.01"/>
+      </body>
+
+      <body pos="0.320 0.41 0.035">
+        <joint name="rwheel" axis="0 1 0" damping="0.1"/>
+        <geom name="rwheel" type="ellipsoid" size="0.17 0.01 0.17"  rgba="1 0 0 0.25" mass="0.01"/>
+      </body>
+
+    </body>
+  </worldbody>
+
+  <actuator>
+    <motor name="lwheel" joint="lwheel"/>
+    <motor name="rwheel" joint="rwheel"/>
+  </actuator>
+</mujoco>
+
