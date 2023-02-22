@@ -1,6 +1,6 @@
 import multiprocessing as mp
 from multiprocessing import Process, Queue
-import queue
+import os
 
 import cv2
 import mujoco
@@ -58,7 +58,7 @@ def vision_process(req_q, ret_q, m, cam_name, cam_res):
         cv2.imshow('image', image)
         cv2.waitKey(1)
 
-        ret_q.put(image)
+        ret_q.put(None)
 
 # on_control callback for physics simulation
 last_render_t = 0.0
@@ -73,16 +73,15 @@ def control(m, d, req_q, res_q):
       last_render_t = d.time
 
       req_q.put(d)
-      image = res_q.get()
-      print('on_control has a', image.shape, 'image')
+      result = res_q.get() # For now result is None, it should be the result of processing the image
 
   except Exception as e:
     print(e)
 
-def load_callback(m=None, d=None, req_q=None, res_q=None):
+def load_callback(m=None, d=None, xml_path=None, req_q=None, res_q=None):
   mujoco.set_mjcb_control(None)
 
-  m = mujoco.MjModel.from_xml_path('mouse.xml')
+  m = mujoco.MjModel.from_xml_path(xml_path)
   d = mujoco.MjData(m)
 
   if m is not None:
@@ -91,7 +90,8 @@ def load_callback(m=None, d=None, req_q=None, res_q=None):
   return m, d
 
 if __name__ == '__main__':
-  m = mujoco.MjModel.from_xml_path('mouse.xml')
+  xml_path = os.path.abspath('mouse.xml')
+  m = mujoco.MjModel.from_xml_path(xml_path)
   req_q, res_q, p = create_vision_process(m, 'mouse', (640, 480))
 
-  viewer.launch(loader=lambda m=None, d=None: load_callback(m, d, req_q, res_q))
+  viewer.launch(loader=lambda m=None, d=None: load_callback(m, d, xml_path, req_q, res_q))
